@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="id"><head><meta charset="utf-8"><title>Arkana Studio — Booking Foto</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--navy:#131f38;--navy2:#1d2d52;--bg:#f4f6fa;--card:#fff;--ink:#17233d;--mute:#6b7690;--line:#e3e8f1;--ok:#1f9d6b;--warn:#d98a1c;--bad:#c9453f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5}
+.logo{font-weight:800;letter-spacing:.5px;color:#fff;font-size:22px;display:inline-flex;align-items:flex-start}
+.logo i{font-style:normal;font-size:.75em;margin-top:-.45em;margin-right:-.05em}
+.logo sup{font-size:.4em;font-weight:500;margin-left:2px}
+header{background:var(--navy);color:#fff;padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+header a{color:#cfd8ee;text-decoration:none;font-size:14px;margin-left:16px}
+.hero{background:linear-gradient(160deg,var(--navy),var(--navy2));color:#fff;text-align:center;padding:56px 20px 64px}
+.hero h1{margin:0 0 8px;font-size:clamp(26px,6vw,40px)}
+.hero p{margin:0 auto 22px;max-width:520px;color:#c4cee6}
+.btn{display:inline-block;border:0;border-radius:10px;background:var(--navy);color:#fff;padding:12px 22px;font-size:15px;font-weight:600;cursor:pointer;text-decoration:none}
+.btn.light{background:#fff;color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.wa{background:#25d366;color:#fff}
+.btn.sm{padding:6px 10px;font-size:12px;border-radius:8px}
+main{max-width:1040px;margin:0 auto;padding:28px 16px 48px}
+h2{margin:36px 0 14px;font-size:22px}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px}
+.card h3{margin:0 0 4px}.price{font-size:22px;font-weight:700;color:var(--navy)}
+.card ul{padding-left:18px;margin:10px 0 0;color:var(--mute);font-size:14px}
+.cats{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font-size:14px;color:var(--ink)}
+.steps{display:grid;gap:18px;grid-template-columns:1fr}
+@media(min-width:860px){.steps{grid-template-columns:1.1fr 1fr}}
+.cal-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.cal-h button{border:1px solid var(--line);background:#fff;border-radius:8px;width:34px;height:34px;cursor:pointer;font-size:16px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.dow{font-size:12px;color:var(--mute);padding:4px 0}
+.day{aspect-ratio:1;border:1px solid var(--line);background:#fff;border-radius:10px;font-size:14px;cursor:pointer;position:relative;color:var(--ink)}
+.day:disabled{background:#eef1f6;color:#aab2c4;cursor:not-allowed}
+.day.part::after{content:"";position:absolute;bottom:5px;left:50%;width:6px;height:6px;margin-left:-3px;border-radius:50%;background:var(--warn)}
+.day.full{background:#fbe9e8;color:var(--bad);border-color:#f3c9c6}
+.day.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin-top:12px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(82px,1fr));gap:8px;margin-top:8px}
+.t{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 0;font-size:14px;cursor:pointer;color:var(--ink)}
+.t:disabled{background:#eef1f6;color:#aab2c4;text-decoration:line-through;cursor:not-allowed}
+.t.sel{background:var(--navy);color:#fff;border-color:var(--navy)}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}
+input,select,textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;background:#fff;color:var(--ink)}
+.sum{background:var(--bg);border-radius:12px;padding:12px 14px;margin-top:14px;font-size:14px}
+.sum b.total{font-size:20px;color:var(--navy)}
+.note{font-size:12px;color:var(--mute);margin-top:8px}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;color:#fff}
+.pending{background:var(--warn)}.confirmed{background:var(--ok)}.cancelled{background:var(--bad)}
+footer{background:var(--navy);color:#c4cee6;text-align:center;padding:26px 16px;font-size:13px}
+.ports a{color:var(--navy);font-weight:600}
+</style></head><body>
+<header><span class="logo"><span>A</span><i>R</i><span>KANA</span><sup>©</sup></span>
+<nav><a href="#paket">Paket</a><a href="#booking">Booking</a><a href="#porto">Portfolio</a></nav></header>
+<section class="hero"><h1>Abadikan momen terbaikmu</h1>
+<p>Fotografi wisuda, wedding, dan momen spesial lainnya. Cek jadwal kosong, pilih slot, langsung booking lewat WhatsApp.</p>
+<a class="btn light" href="#booking">Booking Sekarang</a></section>
+<main>
+<h2 id="paket" style="margin-top:0">Paket Graduation 2026</h2>
+<div class="grid" id="pk"></div>
+<h2>Kategori Lainnya</h2>
+<div class="cats" id="cats"></div>
+<p class="note">Harga kategori selain Graduation disesuaikan kebutuhan dan dikonfirmasi lewat WhatsApp.</p>
+
+<h2 id="booking">Booking Jadwal</h2>
+<div class="steps">
+<div class="card"><div class="cal-h"><button id="pv" aria-label="Bulan sebelumnya">‹</button><b id="mt"></b><button id="nx" aria-label="Bulan berikutnya">›</button></div>
+<div class="cal" id="cal"></div>
+<div class="legend"><span><i class="dot" style="background:#fff;border:1px solid var(--line)"></i>Tersedia</span><span><i class="dot" style="background:var(--warn)"></i>Sebagian terisi</span><span><i class="dot" style="background:#fbe9e8;border:1px solid #f3c9c6"></i>Penuh</span></div>
+<div id="tl" style="margin-top:16px"></div></div>
+<div class="card"><b>Detail Pesanan</b>
+<label>Nama</label><input id="nm" placeholder="Nama lengkap">
+<label>No. WhatsApp</label><input id="wa" inputmode="tel" placeholder="08xxxxxxxxxx">
+<label>Kategori</label><select id="ct"></select>
+<div id="pw"><label>Paket</label><select id="pg"></select></div>
+<label>Durasi</label><select id="du"></select>
+<label>Lokasi</label><input id="lc" placeholder="Contoh: Universitas Diponegoro - Widya Puraya">
+<label>Catatan (opsional)</label><textarea id="ns" rows="2" placeholder="Request style, jumlah orang, dll"></textarea>
+<div class="sum" id="sm"></div>
+<button class="btn" id="go" style="width:100%;margin-top:14px">Booking Sekarang</button>
+<a id="wab" class="btn wa" target="_blank" rel="noopener" style="display:none;width:100%;margin-top:10px;text-align:center">Kirim ke WhatsApp Owner</a>
+<div class="note" id="st"></div></div></div>
+
+<div class="card" id="own" style="display:none;margin-top:26px"><b>Panel Owner</b>
+<p class="note" style="margin-top:2px">Ubah status booking. Status "Batal" otomatis membuka kembali slotnya.</p><div id="ol"></div></div>
+
+<h2 id="porto">Portfolio</h2>
+<div class="grid ports">
+<div class="card"><a href="https://drive.google.com/drive/folders/1dA6eVqc9KcJ3mqIJaxCxUTo4WdXuvsmW" target="_blank" rel="noopener">Portfolio 1 →</a></div>
+<div class="card"><a href="https://drive.google.com/drive/folders/1SeQ0X_eH7UwxH-c5ye6oarXOTTviOVjp?usp=sharing" target="_blank" rel="noopener">Portfolio 2 →</a></div>
+<div class="card"><a href="https://drive.google.com/drive/folders/1VyiyloAC0c_zglo-81j7mxdnUwybDFiJ" target="_blank" rel="noopener">Portfolio 3 →</a></div></div>
+<p class="note">Bebas request style sesuai keinginan kamu.</p>
+</main>
+<footer><span class="logo" style="font-size:18px"><span>A</span><i>R</i><span>KANA</span><sup>©</sup></span><div style="margin-top:6px">© 2026 Arkana Studio</div></footer>
+<script>
+const WA="6285179657160"; // WhatsApp owner
+const OPEN=7,CLOSE=19,MAXH=4;
+const PK=[{n:"Intimate Graduation",p:320000,d:["1 Graduation only","Keluarga/teman","Unlimited photo","25 foto edit"]},{n:"Couple Graduation",p:450000,d:["2 Graduation","Unlimited photo","30 foto edit"]},{n:"Group Graduation",p:520000,d:["Group (4 Graduation)","Unlimited photo","25 foto edit"]}];
+const CATS=["Graduation","Wedding","Prewedding","Engagement","Family","Maternity","Couple Session","Event"];
+const rp=n=>"Rp"+n.toLocaleString("id-ID"),pad=n=>String(n).padStart(2,"0"),$=id=>document.getElementById(id);
+const key=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const today=new Date();today.setHours(0,0,0,0);
+let B=[],view=new Date(today.getFullYear(),today.getMonth(),1),selD=null,selT=null,col=null,isOwner=false;
+$("pk").innerHTML=PK.map(x=>`<div class="card"><h3>${x.n}</h3><div class="price">${rp(x.p)}</div><div class="note">per 1 jam (60 menit)</div><ul>${x.d.map(i=>`<li>${i}</li>`).join("")}<li>Semua file (.JPG/.RAW) via Google Drive, aktif 3 bulan</li></ul></div>`).join("");
+$("cats").innerHTML=CATS.map(c=>`<span class="chip">${c}</span>`).join("");
+$("ct").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
+$("pg").innerHTML=PK.map((x,i)=>`<option value="${i}">${x.n} — ${rp(x.p)}/jam</option>`).join("");
+$("du").innerHTML=Array.from({length:MAXH},(_,i)=>`<option value="${i+1}">${i+1} jam</option>`).join("");
+const active=()=>B.filter(b=>b.status!=="cancelled");
+function blocked(k){const s=new Set();active().filter(b=>b.date===k).forEach(b=>{for(let h=b.start;h<b.start+b.hours;h++)s.add(h)});return s}
+const dur=()=>+$("du").value, isGrad=()=>$("ct").value==="Graduation";
+const total=()=>isGrad()?PK[+$("pg").value].p*dur():null;
+function ok(k,s,h){const bl=blocked(k);if(s+h>CLOSE)return false;for(let i=s;i<s+h;i++)if(bl.has(i))return false;return true}
+function renderCal(){
+ $("mt").textContent=view.toLocaleDateString("id-ID",{month:"long",year:"numeric"});
+ let h=["Min","Sen","Sel","Rab","Kam","Jum","Sab"].map(d=>`<div class="dow">${d}</div>`).join("");
+ const first=view.getDay(),n=new Date(view.getFullYear(),view.getMonth()+1,0).getDate();
+ for(let i=0;i<first;i++)h+="<div></div>";
+ for(let d=1;d<=n;d++){const dt=new Date(view.getFullYear(),view.getMonth(),d),k=key(dt),bl=blocked(k).size,past=dt<today;
+  const cls=(bl>=CLOSE-OPEN?" full":bl?" part":"")+(selD===k?" sel":"");
+  h+=`<button class="day${cls}" data-k="${k}" ${past||bl>=CLOSE-OPEN?"disabled":""}>${d}</button>`}
+ $("cal").innerHTML=h;
+ $("cal").querySelectorAll(".day").forEach(b=>b.onclick=()=>{selD=b.dataset.k;selT=null;render()});
+}
+function renderTimes(){
+ if(!selD){$("tl").innerHTML='<div class="note">Pilih tanggal dulu untuk lihat jam tersedia.</div>';return}
+ const bl=blocked(selD);let h=`<b style="font-size:14px">${new Date(selD+"T00:00").toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long"})}</b><div class="times">`;
+ for(let s=OPEN;s<CLOSE;s++)h+=`<button class="t${selT===s?" sel":""}" data-s="${s}" ${ok(selD,s,dur())?"":"disabled"}>${pad(s)}:00</button>`;
+ $("tl").innerHTML=h+"</div>";
+ $("tl").querySelectorAll(".t").forEach(b=>b.onclick=()=>{selT=+b.dataset.s;render()});
+}
+function renderSum(){
+ $("pw").style.display=isGrad()?"":"none";
+ const t=total();
+ $("sm").innerHTML=`${selD&&selT!=null?`<div>${selD} · ${pad(selT)}:00–${pad(selT+dur())}:00 (${dur()} jam)</div>`:'<div class="note">Belum pilih tanggal & jam</div>'}<div>Estimasi: <b class="total">${t?rp(t):"Harga custom (via WA)"}</b></div>`;
+}
+function renderOwner(){
+ $("own").style.display=isOwner?"":"none";if(!isOwner)return;
+ const L=[...B].sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));
+ const lb={pending:"Menunggu",confirmed:"Dikonfirmasi",cancelled:"Batal"};
+ $("ol").innerHTML=L.length?L.map(b=>`<div class="row"><div><b>${esc(b.name)}</b> · ${esc(b.wa)}<br>${b.date} ${pad(b.start)}:00–${pad(b.start+b.hours)}:00 · ${esc(b.cat)}${b.pkg?" / "+esc(b.pkg):""}<br><span class="note">${esc(b.loc)}${b.total?" · "+rp(b.total):""}</span></div><div><span class="badge ${b.status}">${lb[b.status]}</span><div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap">${["confirmed","pending","cancelled"].map(s=>`<button class="btn sm" data-id="${b.id}" data-s="${s}" ${b.status===s?"disabled":""}>${lb[s]}</button>`).join("")}<button class="btn sm" style="background:var(--bad)" data-id="${b.id}" data-del="1">Hapus</button></div></div></div>`).join(""):'<div class="note">Belum ada booking.</div>';
+ $("ol").querySelectorAll("button").forEach(b=>b.onclick=async()=>{if(!col)return;const r=col.doc(b.dataset.id);try{b.dataset.del?await r.delete():await r.update({status:b.dataset.s})}catch(e){alert("Gagal mengubah: "+(e.message||e.code))}});
+}
+const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){renderCal();renderTimes();renderSum();renderOwner()}
+$("pv").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()-1,1);render()};
+$("nx").onclick=()=>{view=new Date(view.getFullYear(),view.getMonth()+1,1);render()};
+["ct","pg","du"].forEach(i=>$(i).onchange=()=>{if(selT!=null&&!ok(selD,selT,dur()))selT=null;render()});
+$("go").onclick=async()=>{
+ const nm=$("nm").value.trim(),wa=$("wa").value.trim(),lc=$("lc").value.trim(),st=$("st");
+ if(!selD||selT==null)return st.textContent="Pilih tanggal dan jam dulu ya.";
+ if(!nm||!wa||!lc)return st.textContent="Nama, WhatsApp, dan lokasi wajib diisi.";
+ if(!ok(selD,selT,dur()))return st.textContent="Slot barusan terisi, pilih jam lain.";
+ const g=isGrad(),t=total(),b={date:selD,start:selT,hours:dur(),status:"pending",name:nm,wa,cat:$("ct").value,pkg:g?PK[+$("pg").value].n:"",loc:lc,note:$("ns").value.trim(),total:t||0,created:Date.now()};
+ const msg=`Halo Arkana, saya mau booking:\n• Nama: ${nm}\n• Kategori: ${b.cat}${b.pkg?" ("+b.pkg+")":""}\n• Tanggal: ${selD}\n• Jam: ${pad(selT)}:00–${pad(selT+b.hours)}:00 (${b.hours} jam)\n• Lokasi: ${lc}\n• Estimasi: ${t?rp(t):"custom"}${b.note?"\n• Catatan: "+b.note:""}\n• WA: ${wa}`;
+ const url="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
+ selT=null;
+ if(col){try{await col.add(b)}catch(e){}}
+ const l=$("wab");l.href=url;l.style.display="block";
+ st.textContent="Slot sudah ditahan. Klik tombol hijau untuk kirim detail ke WhatsApp owner.";
+ render();
+};
+render();
+(async()=>{try{
+ const u=await claude.use("user");isOwner=!!(u&&u.canEdit&&u.canEdit());
+ const db=await claude.use("db");if(!db){$("st").textContent="Mode demo: jadwal belum tersinkron antar pengguna.";renderOwner();return}
+ col=db.collection("bookings");
+ col.onSnapshot(s=>{B=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{});
+ render();
+}catch(e){}})();
+</script></body></html>
