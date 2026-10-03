@@ -66,7 +66,7 @@ footer{background:var(--navy);color:#c4cee6;text-align:center;padding:26px 16px;
 <h2>Kategori Lainnya</h2>
 <div class="cats" id="cats"></div>
 <p class="note">Harga kategori selain Graduation disesuaikan kebutuhan dan dikonfirmasi lewat WhatsApp.</p>
-
+ 
 <h2 id="booking">Booking Jadwal</h2>
 <div class="steps">
 <div class="card"><div class="cal-h"><button id="pv" aria-label="Bulan sebelumnya">‹</button><b id="mt"></b><button id="nx" aria-label="Bulan berikutnya">›</button></div>
@@ -85,10 +85,10 @@ footer{background:var(--navy);color:#c4cee6;text-align:center;padding:26px 16px;
 <button class="btn" id="go" style="width:100%;margin-top:14px">Booking Sekarang</button>
 <a id="wab" class="btn wa" target="_blank" rel="noopener" style="display:none;width:100%;margin-top:10px;text-align:center">Kirim ke WhatsApp Owner</a>
 <div class="note" id="st"></div></div></div>
-
+ 
 <div class="card" id="own" style="display:none;margin-top:26px"><b>Panel Owner</b>
 <p class="note" style="margin-top:2px">Ubah status booking. Status "Batal" otomatis membuka kembali slotnya.</p><div id="ol"></div></div>
-
+ 
 <h2 id="porto">Portfolio</h2>
 <div class="grid ports">
 <div class="card"><a href="https://drive.google.com/drive/folders/1dA6eVqc9KcJ3mqIJaxCxUTo4WdXuvsmW" target="_blank" rel="noopener">Portfolio 1 →</a></div>
@@ -105,12 +105,28 @@ const CATS=["Graduation","Wedding","Prewedding","Engagement","Family","Maternity
 const rp=n=>"Rp"+n.toLocaleString("id-ID"),pad=n=>String(n).padStart(2,"0"),$=id=>document.getElementById(id);
 const key=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
 const today=new Date();today.setHours(0,0,0,0);
-let B=[],view=new Date(today.getFullYear(),today.getMonth(),1),selD=null,selT=null,col=null,isOwner=false;
+let B=[],view=new Date(today.getFullYear(),today.getMonth(),1),selD=null,selT=null,isOwner=false;
 $("pk").innerHTML=PK.map(x=>`<div class="card"><h3>${x.n}</h3><div class="price">${rp(x.p)}</div><div class="note">per 1 jam (60 menit)</div><ul>${x.d.map(i=>`<li>${i}</li>`).join("")}<li>Semua file (.JPG/.RAW) via Google Drive, aktif 3 bulan</li></ul></div>`).join("");
 $("cats").innerHTML=CATS.map(c=>`<span class="chip">${c}</span>`).join("");
 $("ct").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
 $("pg").innerHTML=PK.map((x,i)=>`<option value="${i}">${x.n} — ${rp(x.p)}/jam</option>`).join("");
 $("du").innerHTML=Array.from({length:MAXH},(_,i)=>`<option value="${i+1}">${i+1} jam</option>`).join("");
+const FB=null; // Isi config Firebase di sini agar slot tersinkron antar pengguna, contoh: {apiKey:"...",projectId:"...",appId:"..."}
+const OWNER_PIN="arkana2026"; // PIN panel owner, buka web dengan ?owner=1 di akhir link. GANTI!
+let store=null,locked=false;
+function localStore(){const K="arkana_b",rd=()=>{try{return JSON.parse(localStorage.getItem(K))||[]}catch(e){return[]}},wr=a=>{try{localStorage.setItem(K,JSON.stringify(a))}catch(e){}};let cb=()=>{};
+ addEventListener("storage",()=>cb(rd()));
+ return{sub(f){cb=f;f(rd())},async add(b){const a=rd();b.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);a.push(b);wr(a);cb(a)},async upd(id,d){const a=rd(),x=a.find(i=>i.id===id);if(x)Object.assign(x,d);wr(a);cb(a)},async del(id){const a=rd().filter(i=>i.id!==id);wr(a);cb(a)}}}
+async function fbStore(){const L=u=>new Promise((r,j)=>{const e=document.createElement("script");e.src=u;e.onload=r;e.onerror=j;document.head.appendChild(e)});
+ await L("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");await L("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
+ firebase.initializeApp(FB);const c=firebase.firestore().collection("bookings");
+ return{sub(f){c.onSnapshot(s=>f(s.docs.map(d=>({id:d.id,...d.data()}))))},add:b=>c.add(b),upd:(id,d)=>c.doc(id).update(d),del:id=>c.doc(id).delete()}}
+function lock(url){locked=true;["nm","wa","ct","pg","du","lc","ns"].forEach(i=>$(i).disabled=true);
+ $("go").style.display="none";["cal","tl"].forEach(i=>{$(i).style.pointerEvents="none";$(i).style.opacity=".55"});
+ const l=$("wab");l.href=url;l.style.display="block";
+ $("st").innerHTML='Slot sudah dikunci dan tidak bisa dipesan orang lain. Klik tombol hijau untuk kirim detail ke WhatsApp owner. <a href="#" id="nb" style="color:var(--navy);font-weight:700">Buat booking baru</a>';
+ $("nb").onclick=e=>{e.preventDefault();locked=false;["nm","wa","ct","pg","du","lc","ns"].forEach(i=>$(i).disabled=false);$("go").style.display="";$("wab").style.display="none";["cal","tl"].forEach(i=>{$(i).style.pointerEvents="";$(i).style.opacity=""});$("st").textContent="";selT=null;render()};
+ l.scrollIntoView({behavior:"smooth",block:"center"})}
 const active=()=>B.filter(b=>b.status!=="cancelled");
 function blocked(k){const s=new Set();active().filter(b=>b.date===k).forEach(b=>{for(let h=b.start;h<b.start+b.hours;h++)s.add(h)});return s}
 const dur=()=>+$("du").value, isGrad=()=>$("ct").value==="Graduation";
@@ -144,7 +160,7 @@ function renderOwner(){
  const L=[...B].sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));
  const lb={pending:"Menunggu",confirmed:"Dikonfirmasi",cancelled:"Batal"};
  $("ol").innerHTML=L.length?L.map(b=>`<div class="row"><div><b>${esc(b.name)}</b> · ${esc(b.wa)}<br>${b.date} ${pad(b.start)}:00–${pad(b.start+b.hours)}:00 · ${esc(b.cat)}${b.pkg?" / "+esc(b.pkg):""}<br><span class="note">${esc(b.loc)}${b.total?" · "+rp(b.total):""}</span></div><div><span class="badge ${b.status}">${lb[b.status]}</span><div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap">${["confirmed","pending","cancelled"].map(s=>`<button class="btn sm" data-id="${b.id}" data-s="${s}" ${b.status===s?"disabled":""}>${lb[s]}</button>`).join("")}<button class="btn sm" style="background:var(--bad)" data-id="${b.id}" data-del="1">Hapus</button></div></div></div>`).join(""):'<div class="note">Belum ada booking.</div>';
- $("ol").querySelectorAll("button").forEach(b=>b.onclick=async()=>{if(!col)return;const r=col.doc(b.dataset.id);try{b.dataset.del?await r.delete():await r.update({status:b.dataset.s})}catch(e){alert("Gagal mengubah: "+(e.message||e.code))}});
+ $("ol").querySelectorAll("button").forEach(b=>b.onclick=async()=>{try{b.dataset.del?await store.del(b.dataset.id):await store.upd(b.dataset.id,{status:b.dataset.s})}catch(e){alert("Gagal mengubah: "+(e.message||e.code))}});
 }
 const esc=s=>String(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 function render(){renderCal();renderTimes();renderSum();renderOwner()}
@@ -159,18 +175,16 @@ $("go").onclick=async()=>{
  const g=isGrad(),t=total(),b={date:selD,start:selT,hours:dur(),status:"pending",name:nm,wa,cat:$("ct").value,pkg:g?PK[+$("pg").value].n:"",loc:lc,note:$("ns").value.trim(),total:t||0,created:Date.now()};
  const msg=`Halo Arkana, saya mau booking:\n• Nama: ${nm}\n• Kategori: ${b.cat}${b.pkg?" ("+b.pkg+")":""}\n• Tanggal: ${selD}\n• Jam: ${pad(selT)}:00–${pad(selT+b.hours)}:00 (${b.hours} jam)\n• Lokasi: ${lc}\n• Estimasi: ${t?rp(t):"custom"}${b.note?"\n• Catatan: "+b.note:""}\n• WA: ${wa}`;
  const url="https://wa.me/"+WA+"?text="+encodeURIComponent(msg);
- selT=null;
- if(col){try{await col.add(b)}catch(e){}}
- const l=$("wab");l.href=url;l.style.display="block";
- st.textContent="Slot sudah ditahan. Klik tombol hijau untuk kirim detail ke WhatsApp owner.";
- render();
+ try{await store.add(b)}catch(e){return st.textContent="Gagal menyimpan, coba lagi."}
+ selT=null;lock(url);render();
 };
 render();
-(async()=>{try{
- const u=await claude.use("user");isOwner=!!(u&&u.canEdit&&u.canEdit());
- const db=await claude.use("db");if(!db){$("st").textContent="Mode demo: jadwal belum tersinkron antar pengguna.";renderOwner();return}
- col=db.collection("bookings");
- col.onSnapshot(s=>{B=s.docs.map(d=>({id:d.id,...d.data()}));render()},()=>{});
- render();
-}catch(e){}})();
+(async()=>{
+ try{if(window.claude){const db=await claude.use("db");if(db){const c=db.collection("bookings");store={sub(f){c.onSnapshot(q=>f(q.docs.map(d=>({id:d.id,...d.data()}))))},add:b=>c.add(b),upd:(id,d)=>c.doc(id).update(d),del:id=>c.doc(id).delete()}}
+  const u=await claude.use("user");isOwner=!!(u&&u.canEdit&&u.canEdit())}}catch(e){}
+ if(!store&&FB){try{store=await fbStore()}catch(e){}}
+ if(!store)store=localStore();
+ if(!isOwner&&new URLSearchParams(location.search).has("owner"))isOwner=prompt("PIN owner:")===OWNER_PIN;
+ store.sub(a=>{B=a;render()});
+})();
 </script></body></html>
