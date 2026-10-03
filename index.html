@@ -87,7 +87,7 @@ footer{background:var(--navy);color:#c4cee6;text-align:center;padding:26px 16px;
 <div class="note" id="st"></div></div></div>
  
 <div class="card" id="own" style="display:none;margin-top:26px"><b>Panel Owner</b>
-<p class="note" style="margin-top:2px">Ubah status booking. Status "Batal" otomatis membuka kembali slotnya.</p><div id="ol"></div></div>
+<p class="note" style="margin-top:2px">Ubah status booking. Status "Batal" otomatis membuka kembali slotnya.</p><div id="lg" style="display:none"><label>Email owner</label><input id="em" type="email" autocomplete="username"><label>Password</label><input id="pw2" type="password" autocomplete="current-password"><button class="btn" id="li" style="margin-top:10px">Login</button> <span class="note" id="le"></span></div><button class="btn sm" id="lo" style="display:none;margin-bottom:8px">Logout</button><div id="ol"></div></div>
  
 <h2 id="porto">Portfolio</h2>
 <div class="grid ports">
@@ -111,16 +111,22 @@ $("cats").innerHTML=CATS.map(c=>`<span class="chip">${c}</span>`).join("");
 $("ct").innerHTML=CATS.map(c=>`<option>${c}</option>`).join("");
 $("pg").innerHTML=PK.map((x,i)=>`<option value="${i}">${x.n} — ${rp(x.p)}/jam</option>`).join("");
 $("du").innerHTML=Array.from({length:MAXH},(_,i)=>`<option value="${i+1}">${i+1} jam</option>`).join("");
-const FB=null; // Isi config Firebase di sini agar slot tersinkron antar pengguna, contoh: {apiKey:"...",projectId:"...",appId:"..."}
-const OWNER_PIN="arkana2026"; // PIN panel owner, buka web dengan ?owner=1 di akhir link. GANTI!
+const FB={apiKey:"AIzaSyDKVo-EZVS6Pz5Rx25B8bJaCvhkH6zD9Ns",authDomain:"arkana-d4dcf.firebaseapp.com",projectId:"arkana-d4dcf",storageBucket:"arkana-d4dcf.firebasestorage.app",messagingSenderId:"941188435716",appId:"1:941188435716:web:0f15b28eab45b31f95ca51"}; // Isi config Firebase di sini agar slot tersinkron antar pengguna, contoh: {apiKey:"...",projectId:"...",appId:"..."}
+const OWNER_PIN="arkana2026"; // Hanya dipakai mode demo (tanpa Firebase). Panel owner: tambahkan ?owner=1 di akhir link
 let store=null,locked=false;
 function localStore(){const K="arkana_b",rd=()=>{try{return JSON.parse(localStorage.getItem(K))||[]}catch(e){return[]}},wr=a=>{try{localStorage.setItem(K,JSON.stringify(a))}catch(e){}};let cb=()=>{};
  addEventListener("storage",()=>cb(rd()));
  return{sub(f){cb=f;f(rd())},async add(b){const a=rd();b.id=Date.now().toString(36)+Math.random().toString(36).slice(2,6);a.push(b);wr(a);cb(a)},async upd(id,d){const a=rd(),x=a.find(i=>i.id===id);if(x)Object.assign(x,d);wr(a);cb(a)},async del(id){const a=rd().filter(i=>i.id!==id);wr(a);cb(a)}}}
-async function fbStore(){const L=u=>new Promise((r,j)=>{const e=document.createElement("script");e.src=u;e.onload=r;e.onerror=j;document.head.appendChild(e)});
- await L("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");await L("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js");
- firebase.initializeApp(FB);const c=firebase.firestore().collection("bookings");
- return{sub(f){c.onSnapshot(s=>f(s.docs.map(d=>({id:d.id,...d.data()}))))},add:b=>c.add(b),upd:(id,d)=>c.doc(id).update(d),del:id=>c.doc(id).delete()}}
+const OM=new URLSearchParams(location.search).has("owner");let OB=null,unsubO=null;
+async function fbStore(){const L=u=>new Promise((r,j)=>{const e=document.createElement("script");e.src=u;e.onload=r;e.onerror=j;document.head.appendChild(e)}),V="https://www.gstatic.com/firebasejs/10.12.2/";
+ await L(V+"firebase-app-compat.js");await Promise.all([L(V+"firebase-firestore-compat.js"),L(V+"firebase-auth-compat.js")]);
+ firebase.initializeApp(FB);const f=firebase.firestore(),bk=f.collection("bookings"),sl=f.collection("slots"),au=firebase.auth(),row=d=>({id:d.id,...d.data()});
+ return{sub(cb){sl.onSnapshot(q=>cb(q.docs.map(row)))},
+  subOwner(cb){return bk.onSnapshot(q=>cb(q.docs.map(row)))},
+  async add(b){const id=bk.doc().id,t=f.batch();t.set(sl.doc(id),{date:b.date,start:b.start,hours:b.hours,status:"pending"});t.set(bk.doc(id),b);await t.commit()},
+  async upd(id,d){const t=f.batch();t.update(sl.doc(id),d);t.update(bk.doc(id),d);await t.commit()},
+  async del(id){const t=f.batch();t.delete(sl.doc(id));t.delete(bk.doc(id));await t.commit()},
+  auth:{onChange:cb=>au.onAuthStateChanged(cb),login:(e,p)=>au.signInWithEmailAndPassword(e,p),logout:()=>au.signOut()}}}
 function lock(url){locked=true;["nm","wa","ct","pg","du","lc","ns"].forEach(i=>$(i).disabled=true);
  $("go").style.display="none";["cal","tl"].forEach(i=>{$(i).style.pointerEvents="none";$(i).style.opacity=".55"});
  const l=$("wab");l.href=url;l.style.display="block";
@@ -156,8 +162,8 @@ function renderSum(){
  $("sm").innerHTML=`${selD&&selT!=null?`<div>${selD} · ${pad(selT)}:00–${pad(selT+dur())}:00 (${dur()} jam)</div>`:'<div class="note">Belum pilih tanggal & jam</div>'}<div>Estimasi: <b class="total">${t?rp(t):"Harga custom (via WA)"}</b></div>`;
 }
 function renderOwner(){
- $("own").style.display=isOwner?"":"none";if(!isOwner)return;
- const L=[...B].sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));
+ $("own").style.display=(isOwner||OM)?"":"none";if(!isOwner){$("ol").innerHTML="";return}
+ const L=[...(OB||B)].sort((a,b)=>(b.date+b.start).localeCompare(a.date+a.start));
  const lb={pending:"Menunggu",confirmed:"Dikonfirmasi",cancelled:"Batal"};
  $("ol").innerHTML=L.length?L.map(b=>`<div class="row"><div><b>${esc(b.name)}</b> · ${esc(b.wa)}<br>${b.date} ${pad(b.start)}:00–${pad(b.start+b.hours)}:00 · ${esc(b.cat)}${b.pkg?" / "+esc(b.pkg):""}<br><span class="note">${esc(b.loc)}${b.total?" · "+rp(b.total):""}</span></div><div><span class="badge ${b.status}">${lb[b.status]}</span><div style="margin-top:6px;display:flex;gap:4px;flex-wrap:wrap">${["confirmed","pending","cancelled"].map(s=>`<button class="btn sm" data-id="${b.id}" data-s="${s}" ${b.status===s?"disabled":""}>${lb[s]}</button>`).join("")}<button class="btn sm" style="background:var(--bad)" data-id="${b.id}" data-del="1">Hapus</button></div></div></div>`).join(""):'<div class="note">Belum ada booking.</div>';
  $("ol").querySelectorAll("button").forEach(b=>b.onclick=async()=>{try{b.dataset.del?await store.del(b.dataset.id):await store.upd(b.dataset.id,{status:b.dataset.s})}catch(e){alert("Gagal mengubah: "+(e.message||e.code))}});
@@ -184,7 +190,11 @@ render();
   const u=await claude.use("user");isOwner=!!(u&&u.canEdit&&u.canEdit())}}catch(e){}
  if(!store&&FB){try{store=await fbStore()}catch(e){}}
  if(!store)store=localStore();
- if(!isOwner&&new URLSearchParams(location.search).has("owner"))isOwner=prompt("PIN owner:")===OWNER_PIN;
  store.sub(a=>{B=a;render()});
+ if(store.auth){
+  store.auth.onChange(u=>{isOwner=!!u;$("lg").style.display=(!u&&OM)?"":"none";$("lo").style.display=u?"":"none";if(unsubO){unsubO();unsubO=null}OB=null;if(u)unsubO=store.subOwner(a=>{OB=a;render()});render()});
+  $("li").onclick=async()=>{$("le").textContent="";try{await store.auth.login($("em").value.trim(),$("pw2").value)}catch(e){$("le").textContent="Login gagal, cek email/password."}};
+  $("lo").onclick=()=>store.auth.logout();
+ }else if(!isOwner&&OM){isOwner=prompt("PIN owner:")===OWNER_PIN;render()}
 })();
 </script></body></html>
